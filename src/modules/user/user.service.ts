@@ -5,7 +5,10 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MapperService } from 'src/shared/mapper.service';
+import { getConnection } from 'typeorm';
+import { Role } from '../role/role.entity';
 import { UserDto } from './dto/user.dto';
+import { UserDetails } from './user.details.entity';
 import { User } from './user.entity';
 import { UserRepository } from './user.repository';
 
@@ -33,7 +36,7 @@ export class UserService {
     return this._mapperService.map<User, UserDto>(user, new UserDto());
   }
 
-  async getAll(): Promise<UserDto> {
+  async getAll(): Promise<UserDto[]> {
     const users: User[] = await this._userRepository.find({
       where: { status: 'ACTIVE' },
     });
@@ -45,6 +48,12 @@ export class UserService {
   }
 
   async create(user: User): Promise<UserDto> {
+    const details = new UserDetails();
+    user.details = details;
+
+    const repo = await getConnection().getRepository(Role);
+    const defaultRole = await repo.findOne({ where: { name: 'GENERAL' } });
+    user.roles = [defaultRole];
     const savedUser: User = await this._userRepository.save(user);
     return this._mapperService.map<User, UserDto>(savedUser, new UserDto());
   }

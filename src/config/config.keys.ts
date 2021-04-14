@@ -1,7 +1,8 @@
 export enum Configuration {
   PORT = 'PORT',
-  HOST = 'localhost',
-  USERNAME = 'postgres',
-  PASSWORD = 'postgres',
-  DATABASE = 'gatitos',
+  HOST = 'HOST',
+  USERNAME = 'USERNAME',
+  PASSWORD = 'PASSWORD',
+  DATABASE = 'DATABASE',
+  DATABASEPORT = 'DATABASEPORT',
 }
