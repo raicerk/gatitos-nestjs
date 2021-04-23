@@ -13,6 +13,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { Roles } from '../role/decorators/role.decorator';
 import { RoleGuard } from '../role/guards/role.guard';
+import { RoleType } from '../role/roletype.enum';
 import { User } from './user.entity';
 import { UserService } from './user.service';
 
@@ -21,14 +22,14 @@ export class UserController {
   constructor(private readonly _userService: UserService) {}
 
   @Get(':id')
-  @Roles('ADMIN', 'GENERAL')
+  @Roles(RoleType.ADMINISTRATOR, RoleType.GENERAL)
   @UseGuards(AuthGuard(), RoleGuard)
   async getUser(@Param('id', ParseIntPipe) id: number): Promise<User> {
     const user = await this._userService.get(id);
     return user;
   }
 
-  @Roles('ADMIN', 'GENERAL', 'ADMINISTRATOR')
+  @Roles(RoleType.ADMINISTRATOR, RoleType.GENERAL, RoleType.AUTHOR)
   @UseGuards(AuthGuard(), RoleGuard)
   @Get()
   async getUsers(): Promise<User[]> {
@@ -36,6 +37,7 @@ export class UserController {
     return users;
   }
 
+  @UseGuards(AuthGuard())
   @Post()
   async createUser(@Body() user: User): Promise<User> {
     const createdUser = await this._userService.create(user);
