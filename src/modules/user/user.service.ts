@@ -4,11 +4,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getConnection } from 'typeorm';
-import { Role } from '../role/role.entity';
+import { plainToClass } from 'class-transformer';
 import { RoleRepository } from '../role/role.repository';
 import { RoleStatus } from '../role/rolestatus.enum';
-import { UserDetails } from './user.details.entity';
+import { ReadUserDto, UpdateUserDto } from './dto';
 import { User } from './user.entity';
 import { UserRepository } from './user.repository';
 import { UserStatus } from './userstatus.enum';
@@ -22,7 +21,7 @@ export class UserService {
     private readonly _roleRepository: RoleRepository,
   ) {}
 
-  async get(id: number): Promise<User> {
+  async get(id: number): Promise<ReadUserDto> {
     if (!id) {
       throw new BadRequestException('Id musr be sent');
     }
@@ -35,29 +34,18 @@ export class UserService {
       throw new NotFoundException();
     }
 
-    return user;
+    return plainToClass(ReadUserDto, user);
   }
 
-  async getAll(): Promise<User[]> {
+  async getAll(): Promise<ReadUserDto[]> {
     const users: User[] = await this._userRepository.find({
       where: { status: UserStatus.ACTIVE },
     });
 
-    return users;
+    return users.map((user: User) => plainToClass(ReadUserDto, user));
   }
 
-  async create(user: User): Promise<User> {
-    const details = new UserDetails();
-    user.details = details;
-
-    const repo = await getConnection().getRepository(Role);
-    const defaultRole = await repo.findOne({ where: { name: 'GENERAL' } });
-    user.roles = [defaultRole];
-    const savedUser: User = await this._userRepository.save(user);
-    return savedUser;
-  }
-
-  async update(id: number, user: User): Promise<void> {
+  async update(id: number, user: UpdateUserDto): Promise<void> {
     await this._userRepository.update(id, user);
   }
 
