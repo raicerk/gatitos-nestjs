@@ -37,10 +37,7 @@ export class RoleService {
     const roles: Role[] = await this._roleRepository.find({
       where: { status: RoleStatus.ACTIVE },
     });
-
-    const response = roles.map((role: Role) => plainToClass(ReadRoleDto, role));
-    console.log(response);
-    return response;
+    return roles.map((role: Role) => plainToClass(ReadRoleDto, role));
   }
 
   async create(role: Partial<CreateRoleDto>): Promise<ReadRoleDto> {
