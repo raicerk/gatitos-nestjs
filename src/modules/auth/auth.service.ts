@@ -7,11 +7,14 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthRepository } from './auth.repository';
 import { JwtService } from '@nestjs/jwt';
-import { SigninDto, SignupDto } from './dto';
+import { LoggedInDto, SigninDto, SignupDto } from './dto';
 import { User } from '../user/user.entity';
-import { compare } from 'bcryptjs';
+import { compare, genSalt, hash } from 'bcryptjs';
 import { IJwtPayload } from './jwt-payload.interface';
 import { RoleType } from '../role/roletype.enum';
+import { plainToClass } from 'class-transformer';
+import { UserStatus } from '../user/userstatus.enum';
+import { ChangepasswordDto } from './dto/changepassword.dto';
 
 @Injectable()
 export class AuthService {
@@ -34,7 +37,7 @@ export class AuthService {
     return this._authRepository.signup(signupDto);
   }
 
-  async signin(signinDto: SigninDto): Promise<{ token: string }> {
+  async signin(signinDto: SigninDto): Promise<LoggedInDto> {
     const { username, password } = signinDto;
 
     const user: User = await this._authRepository.findOne({
@@ -59,7 +62,26 @@ export class AuthService {
       roles: user.roles.map((r) => r.name as RoleType),
     };
 
-    const token = await this._jwtService.sign(payload);
-    return { token };
+    const token = this._jwtService.sign(payload);
+    return plainToClass(LoggedInDto, { token });
+  }
+
+  async updatepassword(changepasswordDto: ChangepasswordDto): Promise<void> {
+    const { userId, password } = changepasswordDto;
+    const user: User = await this._authRepository.findOne(userId, {
+      where: {
+        status: UserStatus.ACTIVE,
+      },
+    });
+    if (!user) {
+      throw new NotFoundException('User does not exist');
+    }
+
+    const salt = await genSalt(10);
+    const newPassword = await hash(password, salt);
+
+    await this._authRepository.update(userId, {
+      password: newPassword,
+    });
   }
 }

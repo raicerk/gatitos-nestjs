@@ -8,9 +8,17 @@ import { DatabaseModule } from './database/database.module';
 import { UserModule } from './modules/user/user.module';
 import { RoleModule } from './modules/role/role.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { GatitoModule } from './modules/gatito/gatito.module';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, UserModule, RoleModule, AuthModule],
+  imports: [
+    ConfigModule,
+    DatabaseModule,
+    UserModule,
+    RoleModule,
+    AuthModule,
+    GatitoModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -10,6 +10,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Gatito } from '../gatito/gatito.entity';
 import { Role } from '../role/role.entity';
 import { UserDetails } from './user.details.entity';
 
@@ -40,6 +41,12 @@ export class User extends BaseEntity {
     name: 'user_roles',
   })
   roles: Role[];
+
+  @ManyToMany((type) => Gatito, (gatito) => gatito.authors)
+  @JoinTable({
+    name: 'user_gatitos',
+  })
+  gatitos: Gatito[];
 
   @Column({ type: 'varchar', default: 'ACTIVE', length: 8 })
   status: string;
