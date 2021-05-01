@@ -51,7 +51,7 @@ export class UserController {
     return deletedUser;
   }
 
-  @HttpCode(200)
+  @HttpCode(204)
   @Post('setRole/:userId/:roleId')
   async setRoleToUser(
     @Param('userId', ParseIntPipe) userId: number,

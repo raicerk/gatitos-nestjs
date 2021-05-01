@@ -26,7 +26,7 @@ export class AuthController {
     return this._authService.signin(signinDto);
   }
 
-  @HttpCode(200)
+  @HttpCode(204)
   @Post('/changepassword')
   //@UseGuards(AuthGuard(), RoleGuard)
   changepassword(@Body() changepasswordDto: ChangepasswordDto): Promise<void> {
